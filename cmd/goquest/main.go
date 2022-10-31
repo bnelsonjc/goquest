@@ -16,7 +16,7 @@ const (
 
 var (
 	returnCode  int   = ExitSuccess
-	flagVersion *bool = flag.Bool("thing", false, "Gives the version info")
+	flagVersion *bool = flag.Bool("version", false, "Gives the version info")
 )
 
 func main() {

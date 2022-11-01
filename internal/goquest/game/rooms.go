@@ -14,6 +14,7 @@ var (
 )
 
 func init() {
+	AllRooms := make(map[string]Room)
 	for _, r := range roomDefs {
 		if _, ok := AllRooms[r.Label]; ok {
 			panic(fmt.Sprintf("duplicate room label %q in roomDefs", r.Label))

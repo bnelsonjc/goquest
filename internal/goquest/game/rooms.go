@@ -41,7 +41,7 @@ var (
 
 	// roomDefs is where AllRooms is loaded from.
 	roomDefs []Room = []Room{
-		Room{
+		{
 			Label: "YOUR_ROOM",
 			Name:  "your bedroom",
 			Description: "You are standing in your bedroom. Perhaps you are a young person who" +
@@ -49,7 +49,7 @@ var (
 				" the corner overlooking the world outside, and a door leading to your bathroom" +
 				" to the east.",
 			Exits: []Egress{
-				Egress{
+				{
 					DestLabel:     "BATHROOM",
 					Description:   "your bathroom door",
 					Aliases:       []string{"BATHROOM", "TOILET", "DOOR", "EAST"},
@@ -57,7 +57,7 @@ var (
 				},
 			},
 		},
-		Room{
+		{
 			Label: "BATHROOM",
 			Name:  "your ensuite bathroom",
 			Description: "You are in the bathroom attached to your bedroom. There's a toilet," +
@@ -65,7 +65,7 @@ var (
 				" bathtub. You enjoy having your amenities not be a complete mess. The currently" +
 				" closed door to the west leads back to your bedroom.",
 			Exits: []Egress{
-				Egress{
+				{
 					DestLabel:     "YOUR_ROOM",
 					Description:   "the door",
 					Aliases:       []string{"BEDROOM", "ROOM", "DOOR", "WEST"},

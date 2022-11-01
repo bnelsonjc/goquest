@@ -58,7 +58,7 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 	}
 
 	// IO to give output:
-	if _, err := ostream.WriteString(output + "\n"); err != nil {
+	if _, err := ostream.WriteString(output + "\n\n"); err != nil {
 		return fmt.Errorf("could not write output: %w", err)
 	}
 	if err := ostream.Flush(); err != nil {

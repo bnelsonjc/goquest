@@ -47,6 +47,12 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 		}
 
 		output = gs.Room.Description
+	case "DEBUG":
+		if cmd.Recipient == "ROOM" {
+			output = gs.Room.String()
+		} else {
+			return fmt.Errorf("I don't know how to debug %q", cmd.Recipient)
+		}
 	default:
 		return fmt.Errorf("I don't know how to %q", cmd.Verb)
 	}

@@ -4,6 +4,7 @@ package game
 import (
 	"bufio"
 	"fmt"
+	"strings"
 )
 
 // Egress is an egress point from a room. It contains both a description and the label it points to.
@@ -22,6 +23,10 @@ type Egress struct {
 	Aliases []string
 }
 
+func (egress Egress) String() string {
+	return fmt.Sprintf("Egress(%q -> %s)", egress.Aliases, egress.DestLabel)
+}
+
 // Room is a scene in the game. It contains a series of exits that lead to other rooms and a
 // description. They also contain a list of the interactables at game start (or will in the future).
 type Room struct {
@@ -37,6 +42,16 @@ type Room struct {
 	// Exits is a list of room labels and ways to describe them, pointing to other rooms in the
 	// game.
 	Exits []Egress
+}
+
+func (room Room) String() string {
+	var exits []string
+	for _, eg := range room.Exits {
+		exits = append(exits, eg.String())
+	}
+	exitsStr := strings.Join(exits, ", ")
+
+	return fmt.Sprintf("Room<%s %q EXITS: %s>", room.Label, room.Name, exitsStr)
 }
 
 // GetEgress returns the egress from the room that is represented by the given alias. If no Egress

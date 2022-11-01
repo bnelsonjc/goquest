@@ -127,6 +127,16 @@ func ParseCommand(toParse string) (Command, error) {
 		if len(tokens) > 1 {
 			parsedCmd.Recipient = tokens[1]
 		}
+	case "DEBUG":
+		if len(tokens) < 2 {
+			return parsedCmd, fmt.Errorf("Debug what, exactly?")
+		}
+
+		if tokens[1] == "ROOM" {
+			parsedCmd.Recipient = "ROOM"
+		} else {
+			return parsedCmd, fmt.Errorf("%q is not a valid thing to be debugged", tokens[1])
+		}
 	case "QUIT":
 		// quit takes no additional args, make sure this is true
 		if len(tokens) > 1 {

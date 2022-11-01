@@ -83,10 +83,20 @@ func ParseCommand(toParse string) (Command, error) {
 			parsedCmd.Recipient = tokens[1]
 		}
 	case "GO":
+		// make shore we ignore prepositions
+		if len(tokens) > 1 && (tokens[1] == "TO" || tokens[1] == "THROUGH" || tokens[1] == "IN" || tokens[1] == "INTO") {
+			tokens = append(tokens[0:1], tokens[2:]...)
+		}
+
 		// need the object; WHERE are we going?
 		if len(tokens) < 2 {
 			return parsedCmd, fmt.Errorf("I don't know where you want to go")
 		}
+
+		if len(tokens) < 2 {
+			return parsedCmd, fmt.Errorf("I don't know where you want to go")
+		}
+
 		parsedCmd.Recipient = tokens[1]
 	case "TAKE":
 		// need to know what we are taking

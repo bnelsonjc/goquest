@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/bnelsonjc/goquest/internal/goquest/engine"
 	"github.com/bnelsonjc/goquest/internal/goquest/version"
 )
 
@@ -12,6 +13,9 @@ const (
 
 	// ExitSuccess indicates a successful program execution.
 	ExitSuccess = iota
+
+	// ExitGameError indicates an unsuccessful program execution due to a problem during the game.
+	ExitGameError
 )
 
 var (
@@ -36,5 +40,10 @@ func main() {
 		return
 	}
 
-	fmt.Print("This program doesn't do much yet\n")
+	gameEng := engine.New(os.Stdin, os.Stdout)
+
+	err := gameEng.RunUntilQuit()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: %s\n", err.Error())
+	}
 }

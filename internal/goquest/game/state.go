@@ -23,6 +23,8 @@ type State struct {
 //
 // Note that for this, QUIT is not considered a valid command is it would be on a controlling engine
 // to end the game state based on that.
+//
+// TODO: differentiate syntax errors from io errors
 func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 	var output string
 

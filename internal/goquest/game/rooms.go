@@ -2,7 +2,10 @@ package game
 
 import "fmt"
 
-// StartLabel is the label of the room that is the starting point of the game.
+const (
+	// StartLabel is the label of the room that is the starting point of the game.
+	StartLabel = "YOUR_ROOM"
+)
 
 var (
 

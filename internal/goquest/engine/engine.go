@@ -36,6 +36,8 @@ func New(inputStream io.Reader, outputStream io.Writer) *Engine {
 
 	startingRoom := game.AllRooms[game.StartLabel]
 
+	fmt.Printf("FIRST OUTPUT: %v", game.AllRooms)
+
 	eng := &Engine{
 		in:  bufio.NewReader(inputStream),
 		out: bufio.NewWriter(outputStream),

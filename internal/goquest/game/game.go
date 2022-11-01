@@ -67,9 +67,16 @@ func GetCommand(istream *bufio.Reader, ostream *bufio.Writer) (Command, error) {
 	var cmd Command
 	gotValidCommand := false
 
+	if _, err := ostream.WriteString("Enter command\n"); err != nil {
+		return cmd, fmt.Errorf("could not write output: %w", err)
+	}
+	if err := ostream.Flush(); err != nil {
+		return cmd, fmt.Errorf("could not flush output: %w", err)
+	}
+
 	for !gotValidCommand {
 		// IO to get input:
-		if _, err := ostream.WriteString("Enter command\n> "); err != nil {
+		if _, err := ostream.WriteString("> "); err != nil {
 			return cmd, fmt.Errorf("could not write output: %w", err)
 		}
 		if err := ostream.Flush(); err != nil {

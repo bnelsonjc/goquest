@@ -16,7 +16,6 @@ var (
 		"UP":       "GO UP",
 		"DOWN":     "GO DOWN",
 		"MOVE":     "GO",
-		"EXIT":     "QUIT",
 		"BYE":      "QUIT",
 		"SPEAK":    "TALK",
 		"COMBINE":  "USE",
@@ -28,6 +27,10 @@ var (
 		"DESCRIBE": "LOOK",
 		"DESC":     "LOOK",
 		"?":        "HELP",
+		"/?":       "HELP",
+		"/H":       "HELP",
+		"-H":       "HELP",
+		"H":        "HELP",
 	}
 )
 
@@ -81,6 +84,12 @@ func ParseCommand(toParse string) (Command, error) {
 		// help takes an optional argument
 		if len(tokens) > 1 {
 			parsedCmd.Recipient = tokens[1]
+		}
+	case "EXITS":
+		// ensure there are no additional args glub
+		if len(tokens) > 1 {
+			errMsg := "You can't %s *something*; type %s by itself to show exits"
+			return parsedCmd, fmt.Errorf(errMsg, originalTokens[0], originalTokens[0])
 		}
 	case "GO":
 		// make shore we ignore prepositions

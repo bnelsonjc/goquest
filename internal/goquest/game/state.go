@@ -3,6 +3,7 @@ package game
 import (
 	"bufio"
 	"fmt"
+	"strings"
 )
 
 // State is the game's entire state.
@@ -41,6 +42,17 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 		gs.Room = newRoom
 
 		output = egress.TravelMessage
+	case "EXITS":
+		exitTable := ""
+
+		for _, eg := range gs.Room.Exits {
+			exitTable += strings.Join(eg.Aliases, "/")
+			exitTable += " -> "
+			exitTable += eg.Description
+			exitTable += "\n"
+		}
+
+		output = exitTable
 	case "LOOK":
 		if cmd.Recipient != "" {
 			return fmt.Errorf("I can't LOOK at particular things yet")
@@ -53,6 +65,18 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 		} else {
 			return fmt.Errorf("I don't know how to debug %q", cmd.Recipient)
 		}
+	case "HELP":
+		output = "Here are the commands you can use (WIP commands do not yet work fully):\n"
+		output += "HELP       - show this help\n"
+		output += "DROP/PUT   - put down an object in the room [WIP]\n"
+		output += "DEBUG ROOM - print info on the current room\n"
+		output += "EXITS      - show the names of all exits from the room\n"
+		output += "GO/MOVE    - go to another room via one of the exits\n"
+		output += "LOOK       - show the description of the room\n"
+		output += "QUIT/EXIT  - end the game\n"
+		output += "TAKE/GET   - pick up an object in the room [WIP]\n"
+		output += "TALK/SPEAK - talk to someone/something in the room [WIP]\n"
+		output += "USE        - use an object in your inventory [WIP]\n"
 	default:
 		return fmt.Errorf("I don't know how to %q", cmd.Verb)
 	}

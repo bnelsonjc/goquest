@@ -75,7 +75,7 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 	case "QUIT":
 		return fmt.Errorf("I can't QUIT; I'm not being executed by a quitable engine")
 	case "GO":
-		egress := gs.CurrentRoom.GetEgress(cmd.Recipient)
+		egress := gs.CurrentRoom.GetEgressByAlias(cmd.Recipient)
 		if egress == nil {
 			return fmt.Errorf("%q isn't a place you can go from here", cmd.Recipient)
 		}
@@ -95,6 +95,13 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 
 		output = exitTable
 	case "TAKE":
+		item := gs.CurrentRoom.GetItemByAlias(cmd.Recipient)
+		if item == nil {
+			return fmt.Errorf("I don't see any %q here", cmd.Recipient)
+		}
+
+		// first remove the item from the room
+		gs.CurrentRoom.Items
 
 	case "LOOK":
 		if cmd.Recipient != "" {

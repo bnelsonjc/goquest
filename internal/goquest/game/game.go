@@ -128,9 +128,9 @@ func (room Room) String() string {
 	return fmt.Sprintf("Room<%s %q EXITS: %s>", room.Label, room.Name, exitsStr)
 }
 
-// GetEgress returns the egress from the room that is represented by the given alias. If no Egress
-// has that alias, the returned egress is nil.
-func (room Room) GetEgress(alias string) *Egress {
+// GetEgressByAlias returns the egress from the room that is represented by the given alias. If no
+// Egress has that alias, the returned egress is nil.
+func (room Room) GetEgressByAlias(alias string) *Egress {
 	var foundEgress *Egress
 
 	for _, eg := range room.Exits {
@@ -143,6 +143,23 @@ func (room Room) GetEgress(alias string) *Egress {
 	}
 
 	return foundEgress
+}
+
+// GetItemByAlias returns the item from the room that is represented by the given alias. If no Item
+// has that alias, the returned item is nil.
+func (room Room) GetItemByAlias(alias string) *Item {
+	var foundItem *Item
+
+	for _, it := range room.Items {
+		for _, al := range it.Aliases {
+			if al == alias {
+				foundItem = &it
+				break
+			}
+		}
+	}
+
+	return foundItem
 }
 
 // GetCommand is the fundamental unit of obtaining input from the user in an interactive fashion.

@@ -26,7 +26,7 @@ type Engine struct {
 //
 // If nil is given for the input stream, a bufio.Reader is opened on stdin.
 // If nil is given for the output stream, a bufio.Writer is opened on stdout.
-func New(inputStream io.Reader, outputStream io.Writer) *Engine {
+func New(inputStream io.Reader, outputStream io.Writer) (*Engine, error) {
 	if inputStream == nil {
 		inputStream = os.Stdin
 	}
@@ -34,18 +34,19 @@ func New(inputStream io.Reader, outputStream io.Writer) *Engine {
 		outputStream = os.Stdout
 	}
 
-	startingRoom := game.AllRooms[game.StartLabel]
+	state, err := game.New(game.DefaultRooms, game.StartLabel)
+	if err != nil {
+		return nil, fmt.Errorf("initializing CLI engine: %w", err)
+	}
 
 	eng := &Engine{
-		in:  bufio.NewReader(inputStream),
-		out: bufio.NewWriter(outputStream),
-		state: game.State{
-			Room: startingRoom,
-		},
+		in:      bufio.NewReader(inputStream),
+		out:     bufio.NewWriter(outputStream),
+		state:   state,
 		running: false,
 	}
 
-	return eng
+	return eng, nil
 }
 
 // RunUntilQuit begins reading commands from the streams and applying them to the game until the
@@ -54,7 +55,7 @@ func (eng *Engine) RunUntilQuit() error {
 	introMsg := "Welcome to GoQuest\n"
 	introMsg += "==================\n"
 	introMsg += "\n"
-	introMsg += "You are in " + eng.state.Room.Name + "\n"
+	introMsg += "You are in " + eng.state.CurrentRoom.Name + "\n"
 
 	if _, err := eng.out.WriteString(introMsg); err != nil {
 		return fmt.Errorf("could not write output: %w", err)

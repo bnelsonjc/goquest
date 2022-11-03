@@ -16,6 +16,10 @@ const (
 
 	// ExitGameError indicates an unsuccessful program execution due to a problem during the game.
 	ExitGameError
+
+	// ExitInitError indicates an unsuccessful program execution due to an issue initializing the
+	// engine.
+	ExitInitError
 )
 
 var (
@@ -40,10 +44,17 @@ func main() {
 		return
 	}
 
-	gameEng := engine.New(os.Stdin, os.Stdout)
+	gameEng, initErr := engine.New(os.Stdin, os.Stdout)
+	if initErr != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: %s\n", initErr.Error())
+		returnCode = ExitInitError
+		return
+	}
 
 	err := gameEng.RunUntilQuit()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: %s\n", err.Error())
+		returnCode = ExitGameError
+		return
 	}
 }

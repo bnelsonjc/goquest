@@ -1,7 +1,5 @@
 package game
 
-import "fmt"
-
 const (
 	// StartLabel is the label of the room that is the starting point of the game.
 	StartLabel = "YOUR_ROOM"
@@ -9,38 +7,9 @@ const (
 
 var (
 
-	// AllRooms is loaded with definitions for all rooms in the game, marked by the labels to them.
-	AllRooms map[string]Room
-)
-
-func init() {
-	AllRooms = make(map[string]Room)
-	for _, r := range roomDefs {
-		if _, ok := AllRooms[r.Label]; ok {
-			panic(fmt.Sprintf("duplicate room label %q in roomDefs", r.Label))
-		}
-
-		// sanity check that egress aliases are not duplicated
-		seenAliases := map[string]bool{}
-		for _, eg := range r.Exits {
-			for _, alias := range eg.Aliases {
-				if _, ok := seenAliases[alias]; ok {
-					errMsg := "duplicate egress alias %q in room %q in roomDefs"
-					panic(fmt.Sprintf(errMsg, alias, r.Label))
-				}
-			}
-		}
-
-		AllRooms[r.Label] = r
-	}
-
-	// TODO: after all this is done, ensure that all room egresses are valid existing labels
-}
-
-var (
-
-	// roomDefs is where AllRooms is loaded from.
-	roomDefs []Room = []Room{
+	// DefaultRooms is the main set of room definitions, which will likely eventually be moved to
+	// data.
+	DefaultRooms []Room = []Room{
 		{
 			Label: "YOUR_ROOM",
 			Name:  "your bedroom",

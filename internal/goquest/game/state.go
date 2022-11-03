@@ -8,11 +8,53 @@ import (
 
 // State is the game's entire state.
 type State struct {
-	// Room is the current room that the player is in.
-	Room Room
+	// World is all rooms that exist and their current state.
+	World map[string]*Room
+
+	// CurrentRoom is the room that the player is in.
+	CurrentRoom *Room
 
 	// Inventory is the objects that the player currently has.
 	Inventory []string
+}
+
+// New creates a new State and loads the list of rooms into it. It performs basic sanity checks
+// to ensure that a valid world is being passed in and normalizes them as needed.
+//
+// startingRoom is the label of the room to start with.
+func New(world []Room, startingRoom string) (State, error) {
+	gs := State{}
+
+	for _, r := range world {
+		if _, ok := gs.World[r.Label]; ok {
+			return gs, fmt.Errorf("duplicate room label %q in roomDefs", r.Label)
+		}
+
+		// sanity check that egress aliases are not duplicated
+		seenAliases := map[string]bool{}
+		for _, eg := range r.Exits {
+			for _, alias := range eg.Aliases {
+				if _, ok := seenAliases[alias]; ok {
+					errMsg := "duplicate egress alias %q in room %q in roomDefs"
+					return gs, fmt.Errorf(errMsg, alias, r.Label)
+				}
+			}
+		}
+
+		roomCopy := r.Copy()
+		gs.World[r.Label] = &roomCopy
+	}
+
+	// TODO: after all this is done, ensure that all room egresses are valid existing labels
+
+	// now set the current room
+	var startExists bool
+	gs.CurrentRoom, startExists = gs.World[startingRoom]
+	if !startExists {
+		return gs, fmt.Errorf("starting room with label %q does not exist in passed-in rooms", startingRoom)
+	}
+
+	return gs, nil
 }
 
 // Advance advances the game state based on the given command. If there is a problem executing the
@@ -33,19 +75,18 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 	case "QUIT":
 		return fmt.Errorf("I can't QUIT; I'm not being executed by a quitable engine")
 	case "GO":
-		egress := gs.Room.GetEgress(cmd.Recipient)
+		egress := gs.CurrentRoom.GetEgress(cmd.Recipient)
 		if egress == nil {
 			return fmt.Errorf("%q isn't a place you can go from here", cmd.Recipient)
 		}
 
-		newRoom := AllRooms[egress.DestLabel]
-		gs.Room = newRoom
+		gs.CurrentRoom = gs.World[egress.DestLabel]
 
 		output = egress.TravelMessage
 	case "EXITS":
 		exitTable := ""
 
-		for _, eg := range gs.Room.Exits {
+		for _, eg := range gs.CurrentRoom.Exits {
 			exitTable += strings.Join(eg.Aliases, "/")
 			exitTable += " -> "
 			exitTable += eg.Description
@@ -58,10 +99,10 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 			return fmt.Errorf("I can't LOOK at particular things yet")
 		}
 
-		output = gs.Room.Description
+		output = gs.CurrentRoom.Description
 	case "DEBUG":
 		if cmd.Recipient == "ROOM" {
-			output = gs.Room.String()
+			output = gs.CurrentRoom.String()
 		} else {
 			return fmt.Errorf("I don't know how to debug %q", cmd.Recipient)
 		}

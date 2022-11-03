@@ -27,6 +27,20 @@ func (egress Egress) String() string {
 	return fmt.Sprintf("Egress(%q -> %s)", egress.Aliases, egress.DestLabel)
 }
 
+// Copy returns a deeply-copied Egress.
+func (egress Egress) Copy() Egress {
+	eCopy := Egress{
+		DestLabel:     egress.DestLabel,
+		Description:   egress.Description,
+		TravelMessage: egress.TravelMessage,
+		Aliases:       make([]string, len(egress.Aliases)),
+	}
+
+	copy(eCopy.Aliases, egress.Aliases)
+
+	return eCopy
+}
+
 // Room is a scene in the game. It contains a series of exits that lead to other rooms and a
 // description. They also contain a list of the interactables at game start (or will in the future).
 type Room struct {
@@ -42,6 +56,28 @@ type Room struct {
 	// Exits is a list of room labels and ways to describe them, pointing to other rooms in the
 	// game.
 	Exits []Egress
+
+	// Items is the items on the ground. This can be changed over time.
+	Items []string
+}
+
+// Copy returns a deeply-copied Room.
+func (room Room) Copy() Room {
+	rCopy := Room{
+		Label:       room.Label,
+		Name:        room.Name,
+		Description: room.Description,
+		Exits:       make([]Egress, len(room.Exits)),
+		Items:       make([]string, len(room.Items)),
+	}
+
+	copy(rCopy.Items, room.Items)
+
+	for i := range room.Exits {
+		rCopy.Exits[i] = room.Exits[i].Copy()
+	}
+
+	return rCopy
 }
 
 func (room Room) String() string {
@@ -113,7 +149,7 @@ func GetCommand(istream *bufio.Reader, ostream *bufio.Writer) (Command, error) {
 			if err := ostream.Flush(); err != nil {
 				return cmd, fmt.Errorf("could not flush output: %w", err)
 			}
-		} else {
+		} else if cmd.Verb != "" {
 			gotValidCommand = true
 		}
 	}

@@ -114,7 +114,7 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 		output += "EXITS      - show the names of all exits from the room\n"
 		output += "GO/MOVE    - go to another room via one of the exits\n"
 		output += "LOOK       - show the description of the room\n"
-		output += "QUIT/EXIT  - end the game\n"
+		output += "QUIT/BYE   - end the game\n"
 		output += "TAKE/GET   - pick up an object in the room [WIP]\n"
 		output += "TALK/SPEAK - talk to someone/something in the room [WIP]\n"
 		output += "USE        - use an object in your inventory [WIP]\n"

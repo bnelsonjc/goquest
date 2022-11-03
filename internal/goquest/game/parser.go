@@ -31,6 +31,8 @@ var (
 		"/H":       "HELP",
 		"-H":       "HELP",
 		"H":        "HELP",
+		"INVEN":    "INVENTORY",
+		"I":        "INVENTORY",
 	}
 )
 
@@ -155,6 +157,12 @@ func ParseCommand(toParse string) (Command, error) {
 			parsedCmd.Recipient = "ROOM"
 		} else {
 			return parsedCmd, fmt.Errorf("%q is not a valid thing to be debugged", tokens[1])
+		}
+	case "INVENTORY":
+		// ensure there are no additional args glub
+		if len(tokens) > 1 {
+			errMsg := "You can't %s *something*; type %s by itself to show inventory"
+			return parsedCmd, fmt.Errorf(errMsg, originalTokens[0], originalTokens[0])
 		}
 	case "QUIT":
 		// quit takes no additional args, make sure this is true

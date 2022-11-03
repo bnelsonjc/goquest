@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"strings"
+
+	"github.com/bnelsonjc/goquest/internal/goquest/util"
 )
 
 // State is the game's entire state.
@@ -15,7 +17,7 @@ type State struct {
 	CurrentRoom *Room
 
 	// Inventory is the objects that the player currently has.
-	Inventory []string
+	Inventory Inventory
 }
 
 // New creates a new State and loads the list of rooms into it. It performs basic sanity checks
@@ -23,7 +25,7 @@ type State struct {
 //
 // startingRoom is the label of the room to start with.
 func New(world []Room, startingRoom string) (State, error) {
-	gs := State{}
+	gs := State{Inventory: make(map[string]Item)}
 
 	for _, r := range world {
 		if _, ok := gs.World[r.Label]; ok {
@@ -101,14 +103,55 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 		}
 
 		// first remove the item from the room
-		gs.CurrentRoom.Items
+		gs.CurrentRoom.RemoveItem(item.Label)
 
+		// then add it to inventory.
+		gs.Inventory[item.Label] = *item
+
+		output = "You pick up the %s and add it to your inventory."
+	case "DROP":
+		item := gs.Inventory.GetItemByAlias(cmd.Recipient)
+		if item == nil {
+			return fmt.Errorf("You don't have a %q", cmd.Recipient)
+		}
+
+		// first remove item from inven
+		delete(gs.Inventory, item.Label)
+
+		// add to room
+		gs.CurrentRoom.Items = append(gs.CurrentRoom.Items, *item)
+
+		output = "You drop the %s onto the ground"
 	case "LOOK":
 		if cmd.Recipient != "" {
 			return fmt.Errorf("I can't LOOK at particular things yet")
 		}
 
 		output = gs.CurrentRoom.Description
+		if len(gs.CurrentRoom.Items) > 0 {
+			var itemNames []string
+
+			for _, it := range gs.CurrentRoom.Items {
+				itemNames = append(itemNames, it.Name)
+			}
+
+			output += "\n\n"
+			output += "On the ground, you can see "
+
+			output += util.MakeTextList(itemNames) + "."
+		}
+	case "INVENTORY":
+		if len(gs.Inventory) < 1 {
+			output = "You aren't carrying anything"
+		} else {
+			var itemNames []string
+			for _, it := range gs.Inventory {
+				itemNames = append(itemNames, it.Name)
+			}
+
+			output = "You currently have the following items:\n"
+			output += util.MakeTextList(itemNames) + "."
+		}
 	case "DEBUG":
 		if cmd.Recipient == "ROOM" {
 			output = gs.CurrentRoom.String()
@@ -117,16 +160,17 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 		}
 	case "HELP":
 		output = "Here are the commands you can use (WIP commands do not yet work fully):\n"
-		output += "HELP       - show this help\n"
-		output += "DROP/PUT   - put down an object in the room [WIP]\n"
-		output += "DEBUG ROOM - print info on the current room\n"
-		output += "EXITS      - show the names of all exits from the room\n"
-		output += "GO/MOVE    - go to another room via one of the exits\n"
-		output += "LOOK       - show the description of the room\n"
-		output += "QUIT/BYE   - end the game\n"
-		output += "TAKE/GET   - pick up an object in the room [WIP]\n"
-		output += "TALK/SPEAK - talk to someone/something in the room [WIP]\n"
-		output += "USE        - use an object in your inventory [WIP]\n"
+		output += "HELP              - show this help\n"
+		output += "DROP/PUT          - put down an object in the room\n"
+		output += "DEBUG ROOM        - print info on the current room\n"
+		output += "EXITS             - show the names of all exits from the room\n"
+		output += "GO/MOVE           - go to another room via one of the exits\n"
+		output += "INVENTORY/INVEN   - show your current inventory\n"
+		output += "LOOK              - show the description of the room\n"
+		output += "QUIT/BYE          - end the game\n"
+		output += "TAKE/GET          - pick up an object in the room\n"
+		output += "TALK/SPEAK        - talk to someone/something in the room [WIP]\n"
+		output += "USE               - use an object in your inventory [WIP]\n"
 	default:
 		return fmt.Errorf("I don't know how to %q", cmd.Verb)
 	}

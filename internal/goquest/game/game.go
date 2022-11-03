@@ -7,6 +7,26 @@ import (
 	"strings"
 )
 
+// Inventory is a store of items.
+type Inventory map[string]Item
+
+// GetItemByAlias returns the item from the Inventory that is represented by the given alias. If no
+// Item in the inventory has that alias, the returned item is nil.
+func (inv Inventory) GetItemByAlias(alias string) *Item {
+	var foundItem *Item
+
+	for _, it := range inv {
+		for _, al := range it.Aliases {
+			if al == alias {
+				foundItem = &it
+				break
+			}
+		}
+	}
+
+	return foundItem
+}
+
 // Item is an object that can be picked up. It contains a unique label, a description, and aliases
 // that it can be referred to by. All aliases SHOULD be unique in case an item is dropped with
 // another, but as long as at least ONE alias is present, we can handle the ambiguous case by asking
@@ -16,6 +36,9 @@ type Item struct {
 	// Label is a name for the item and canonical way to index it programmatically. It should be
 	// upper case and MUST be unique within all labels of the world.
 	Label string
+
+	// Name is the short name of the item.
+	Name string
 
 	// Description is what is shown when the player LOOKs at the item.
 	Description string
@@ -34,6 +57,7 @@ func (item Item) String() string {
 func (item Item) Copy() Item {
 	iCopy := Item{
 		Label:       item.Label,
+		Name:        item.Name,
 		Description: item.Description,
 		Aliases:     make([]string, len(item.Aliases)),
 	}
@@ -160,6 +184,29 @@ func (room Room) GetItemByAlias(alias string) *Item {
 	}
 
 	return foundItem
+}
+
+// RemoveItem removes the item of the given label from the room. If there is already no item with
+// that label in the room, this has no effect.
+func (room *Room) RemoveItem(label string) {
+	itemIndex := -1
+
+	// TODO: why aren't we indexing items by their label?
+	// makes it hard to have hardcoded rooms i suppose.
+	for idx, it := range room.Items {
+		if it.Label == label {
+			itemIndex = idx
+			break
+		}
+	}
+
+	if itemIndex == -1 {
+		// no item by that label is here
+		return
+	}
+
+	// otherwise, rewrite items to not include that.
+	room.Items = append(room.Items[:itemIndex], room.Items[itemIndex+1:]...)
 }
 
 // GetCommand is the fundamental unit of obtaining input from the user in an interactive fashion.

@@ -25,7 +25,7 @@ type State struct {
 //
 // startingRoom is the label of the room to start with.
 func New(world []Room, startingRoom string) (State, error) {
-	gs := State{Inventory: make(map[string]Item)}
+	gs := State{World: make(map[string]*Room), Inventory: make(map[string]Item)}
 
 	for _, r := range world {
 		if _, ok := gs.World[r.Label]; ok {

@@ -26,7 +26,7 @@ type Engine struct {
 //
 // If nil is given for the input stream, a bufio.Reader is opened on stdin.
 // If nil is given for the output stream, a bufio.Writer is opened on stdout.
-func New(inputStream io.Reader, outputStream io.Writer) (*Engine, error) {
+func New(inputStream io.Reader, outputStream io.Writer, worldFilePath string) (*Engine, error) {
 	if inputStream == nil {
 		inputStream = os.Stdin
 	}
@@ -34,7 +34,13 @@ func New(inputStream io.Reader, outputStream io.Writer) (*Engine, error) {
 		outputStream = os.Stdout
 	}
 
-	state, err := game.New(game.DefaultRooms, game.StartLabel)
+	// load world file
+	world, start, err := game.LoadWorldDefFile(worldFilePath)
+	if err != nil {
+		return nil, err
+	}
+
+	state, err := game.New(world, start)
 	if err != nil {
 		return nil, fmt.Errorf("initializing CLI engine: %w", err)
 	}

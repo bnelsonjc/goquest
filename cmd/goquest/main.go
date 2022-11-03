@@ -25,7 +25,17 @@ const (
 var (
 	returnCode  int   = ExitSuccess
 	flagVersion *bool = flag.Bool("version", false, "Gives the version info")
+	worldFile   string
 )
+
+func init() {
+	const (
+		defaultWorldFile = "world.json"
+		worldUsage       = "the JSON file that contains the definition of the world"
+	)
+	flag.StringVar(&worldFile, "world", defaultWorldFile, worldUsage)
+	flag.StringVar(&worldFile, "w", defaultWorldFile, worldUsage+" (shorthand)")
+}
 
 func main() {
 	defer func() {
@@ -44,7 +54,7 @@ func main() {
 		return
 	}
 
-	gameEng, initErr := engine.New(os.Stdin, os.Stdout)
+	gameEng, initErr := engine.New(os.Stdin, os.Stdout, worldFile)
 	if initErr != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: %s\n", initErr.Error())
 		returnCode = ExitInitError

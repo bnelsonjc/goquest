@@ -24,30 +24,11 @@ type State struct {
 // to ensure that a valid world is being passed in and normalizes them as needed.
 //
 // startingRoom is the label of the room to start with.
-func New(world []Room, startingRoom string) (State, error) {
-	gs := State{World: make(map[string]*Room), Inventory: make(map[string]Item)}
-
-	for _, r := range world {
-		if _, ok := gs.World[r.Label]; ok {
-			return gs, fmt.Errorf("duplicate room label %q in roomDefs", r.Label)
-		}
-
-		// sanity check that egress aliases are not duplicated
-		seenAliases := map[string]bool{}
-		for _, eg := range r.Exits {
-			for _, alias := range eg.Aliases {
-				if _, ok := seenAliases[alias]; ok {
-					errMsg := "duplicate egress alias %q in room %q in roomDefs"
-					return gs, fmt.Errorf(errMsg, alias, r.Label)
-				}
-			}
-		}
-
-		roomCopy := r.Copy()
-		gs.World[r.Label] = &roomCopy
+func New(world map[string]*Room, startingRoom string) (State, error) {
+	gs := State{
+		World:     world,
+		Inventory: make(Inventory),
 	}
-
-	// TODO: after all this is done, ensure that all room egresses are valid existing labels
 
 	// now set the current room
 	var startExists bool

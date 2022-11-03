@@ -3,4 +3,4 @@
 package version
 
 // Current is the string representing the current version of goquest.
-const Current = "0.0.1"
+const Current = "0.1.0"

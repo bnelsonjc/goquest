@@ -18,6 +18,14 @@
 					"aliases":       ["HALLWAY", "HALL", "OUT", "SOUTH"],
 					"travelMessage": "You shut the door behind you as you go into the hall."
 				}
+            ],
+            "items": [
+                {
+                    "label": "POGO_HAMMER",
+                    "name": "a pogo hammer",
+                    "description": "Your treasured hammer mixed with a pogo stick. This probably shouldn't be left where children can reach it (that's a quip, not a game mechanic).",
+                    "aliases": ["HAMMER", "POGOHAMMER", "POGO", "POGO_HAMMER"]
+                }
             ]
 		},
         {

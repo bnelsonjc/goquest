@@ -89,7 +89,7 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 		// then add it to inventory.
 		gs.Inventory[item.Label] = *item
 
-		output = "You pick up the %s and add it to your inventory."
+		output = fmt.Sprintf("You pick up the %s and add it to your inventory.", item.Name)
 	case "DROP":
 		item := gs.Inventory.GetItemByAlias(cmd.Recipient)
 		if item == nil {
@@ -102,7 +102,7 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 		// add to room
 		gs.CurrentRoom.Items = append(gs.CurrentRoom.Items, *item)
 
-		output = "You drop the %s onto the ground"
+		output = fmt.Sprintf("You drop the %s onto the ground", item.Name)
 	case "LOOK":
 		if cmd.Recipient != "" {
 			return fmt.Errorf("I can't LOOK at particular things yet")

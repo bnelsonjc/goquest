@@ -94,6 +94,8 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 		}
 
 		output = exitTable
+	case "TAKE":
+
 	case "LOOK":
 		if cmd.Recipient != "" {
 			return fmt.Errorf("I can't LOOK at particular things yet")

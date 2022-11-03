@@ -7,6 +7,42 @@ import (
 	"strings"
 )
 
+// Item is an object that can be picked up. It contains a unique label, a description, and aliases
+// that it can be referred to by. All aliases SHOULD be unique in case an item is dropped with
+// another, but as long as at least ONE alias is present, we can handle the ambiguous case by asking
+// player to restate.
+type Item struct {
+
+	// Label is a name for the item and canonical way to index it programmatically. It should be
+	// upper case and MUST be unique within all labels of the world.
+	Label string
+
+	// Description is what is shown when the player LOOKs at the item.
+	Description string
+
+	// Aliases are all of the strings that can be used to refer to the item. It must have at least
+	// one string that is unique amongst the labels in the world it is in. It does not include Label
+	// by default, this must be explicitly given.
+	Aliases []string
+}
+
+func (item Item) String() string {
+	return fmt.Sprintf("Item(%q, (%s))", item.Label, strings.Join(item.Aliases, ", "))
+}
+
+// Copy returns a deeply-copied Item.
+func (item Item) Copy() Item {
+	iCopy := Item{
+		Label:       item.Label,
+		Description: item.Description,
+		Aliases:     make([]string, len(item.Aliases)),
+	}
+
+	copy(iCopy.Aliases, item.Aliases)
+
+	return iCopy
+}
+
 // Egress is an egress point from a room. It contains both a description and the label it points to.
 type Egress struct {
 	// DestLabel is the label of the room this egress goes to.
@@ -58,7 +94,7 @@ type Room struct {
 	Exits []Egress
 
 	// Items is the items on the ground. This can be changed over time.
-	Items []string
+	Items []Item
 }
 
 // Copy returns a deeply-copied Room.
@@ -68,13 +104,15 @@ func (room Room) Copy() Room {
 		Name:        room.Name,
 		Description: room.Description,
 		Exits:       make([]Egress, len(room.Exits)),
-		Items:       make([]string, len(room.Items)),
+		Items:       make([]Item, len(room.Items)),
 	}
-
-	copy(rCopy.Items, room.Items)
 
 	for i := range room.Exits {
 		rCopy.Exits[i] = room.Exits[i].Copy()
+	}
+
+	for i := range room.Items {
+		rCopy.Items[i] = room.Items[i].Copy()
 	}
 
 	return rCopy

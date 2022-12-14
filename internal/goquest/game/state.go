@@ -6,7 +6,22 @@ import (
 	"strings"
 
 	"github.com/bnelsonjc/goquest/internal/goquest/util"
+	"github.com/dekarrin/rosed"
 )
+
+var commandHelp = [][2]string{
+	{"HELP", "show this help"},
+	{"DROP/PUT", "put down an object in the room"},
+	{"DEBUG ROOM", "print info on the current room"},
+	{"EXITS", "show the names of all exits from the room"},
+	{"GO/MOVE", "go to another room via one of the exits"},
+	{"INVENTORY/INVEN", "show your current inventory"},
+	{"LOOK", "show the description of the room"},
+	{"QUIT/BYE", "end the game"},
+	{"TAKE/GET", "pick up an object in the room"},
+	{"TALK/SPEAK", "talk to someone/something in the room [WIP]"},
+	{"USE", "use an object in your inventory [WIP]"},
+}
 
 // State is the game's entire state.
 type State struct {
@@ -140,18 +155,13 @@ func (gs *State) Advance(cmd Command, ostream *bufio.Writer) error {
 			return fmt.Errorf("I don't know how to debug %q", cmd.Recipient)
 		}
 	case "HELP":
-		output = "Here are the commands you can use (WIP commands do not yet work fully):\n"
-		output += "HELP              - show this help\n"
-		output += "DROP/PUT          - put down an object in the room\n"
-		output += "DEBUG ROOM        - print info on the current room\n"
-		output += "EXITS             - show the names of all exits from the room\n"
-		output += "GO/MOVE           - go to another room via one of the exits\n"
-		output += "INVENTORY/INVEN   - show your current inventory\n"
-		output += "LOOK              - show the description of the room\n"
-		output += "QUIT/BYE          - end the game\n"
-		output += "TAKE/GET          - pick up an object in the room\n"
-		output += "TALK/SPEAK        - talk to someone/something in the room [WIP]\n"
-		output += "USE               - use an object in your inventory [WIP]\n"
+		ed := rosed.
+			Edit("").
+			WithOptions(rosed.Options{ParagraphSeparator: "\n"}).
+			InsertDefinitionsTable(0, commandHelp, 80)
+		output = ed.
+			Insert(0, "Here are the commands you can use (WIP commands do not yet work fully):\n").
+			String()
 	default:
 		return fmt.Errorf("I don't know how to %q", cmd.Verb)
 	}
